@@ -11,7 +11,7 @@ app.get('/start-puppeteer', async (req, res) => {
     try {
         const browser = await puppeteer.launch({
             headless: true,
-            // executablePath: '/path/to/chrome', // Replace with the correct path to your Chrome installation
+            executablePath: 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
             args: ['--no-sandbox', '--disable-setuid-sandbox']
           }); 
 
