@@ -5,16 +5,10 @@ const app = express();
 
 app.use(cors());  // Enable CORS for all requests
 
-const browser = await puppeteer.launch({
-    headless: true,
-    // executablePath: '/path/to/chrome', // Replace with the correct path to your Chrome installation
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
-  }); 
-
 // Add a route to accept Flipkart URL as a query parameter
 app.get('/start-puppeteer', async (req, res) => {
     try {
-        console.log("FlipKart URL: " + req.query.url);
+        console.log(req.query.url);
         const flipkartUrl = req.query.url;  // Get the Flipkart URL from the query parameter
         
         if (!flipkartUrl) {
@@ -46,14 +40,11 @@ app.get('/start-puppeteer', async (req, res) => {
             const items = [];
             const priceElements = document.querySelectorAll('.a-price-whole');
             const ratingElements = document.querySelectorAll('.a-icon-alt');
-            const linkElements = document.querySelectorAll('.a-link-normal.s-underline-text.s-underline-link-text.s-link-style.a-text-normal');
-            // console.log("Href:- " + link);
 
             for (let i = 0; i < 10; i++) {
                 const price = priceElements[i]?.innerText || "No price available";
                 const rating = ratingElements[i]?.innerText?.slice(0, 3) || "No rating available";
-                const link = linkElements[i]?.href || "No Link Available";
-                items.push({ price, rating, link });
+                items.push({ price, rating });
             }
 
             return items;
