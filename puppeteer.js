@@ -5,15 +5,15 @@ const app = express();
 
 app.use(cors());  // Enable CORS for all requests
 
-const browser = await puppeteer.launch({
-    headless: true,
-    // executablePath: '/path/to/chrome', // Replace with the correct path to your Chrome installation
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
-  }); 
-
 // Add a route to accept Flipkart URL as a query parameter
 app.get('/start-puppeteer', async (req, res) => {
     try {
+        const browser = await puppeteer.launch({
+            headless: true,
+            // executablePath: '/path/to/chrome', // Replace with the correct path to your Chrome installation
+            args: ['--no-sandbox', '--disable-setuid-sandbox']
+          }); 
+
         console.log("FlipKart URL: " + req.query.url);
         const flipkartUrl = req.query.url;  // Get the Flipkart URL from the query parameter
         
@@ -21,7 +21,7 @@ app.get('/start-puppeteer', async (req, res) => {
             return res.status(400).send('Flipkart URL is required.');
         }
 
-        const browser = await puppeteer.launch();
+        browser = await puppeteer.launch();
         const page = await browser.newPage();
 
         // Navigate to the Flipkart page using the dynamic URL
