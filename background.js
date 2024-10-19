@@ -9,7 +9,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         console.log("UrlToScrape: "+ urlToScrape);
   
         // Make a request to the local Node.js server running Puppeteer
-        fetch(`https://flipkart-extension.onrender.com/start-puppeteer?url=${encodeURIComponent(urlToScrape)}`)
+        fetch(`http://localhost:3000/start-puppeteer?url=${encodeURIComponent(urlToScrape)}`)
             .then(response => response.json())
             .then(data => {
                 console.log("Puppeteer data received:", data);
