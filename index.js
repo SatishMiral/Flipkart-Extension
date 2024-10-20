@@ -1,6 +1,7 @@
-const puppeteer = require('puppeteer');
-const express = require('express');
-const cors = require('cors');
+import puppeteer from 'puppeteer';
+import express from 'express';
+import cors from 'cors';
+
 const app = express();
 
 app.use(cors());  // Enable CORS for all requests
