@@ -9,7 +9,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         console.log("UrlToScrape: "+ urlToScrape);
   
         // Make a request to the local Node.js server running Puppeteer
-        fetch(`http://localhost:3000/start-puppeteer?url=${encodeURIComponent(urlToScrape)}`)
+        fetch(`http:localhost:3000/start-puppeteer?url=${encodeURIComponent(urlToScrape)}`)
             .then(response => response.json())
             .then(data => {
                 console.log("Puppeteer data received:", data);
@@ -17,7 +17,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             })
             .catch(error => {
                 console.error("Error calling Puppeteer:", error);
-                sendResponse({ error: "Failed to run Puppeteer script." });
+                sendResponse({ "error": "Failed to run Puppeteer script." });
             });
   
         // This is required to use async response

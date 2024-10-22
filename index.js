@@ -67,7 +67,7 @@ app.get('/start-puppeteer', async (req, res) => {
         await browser.close();
 
         // Send back the extracted data as a response
-        res.json({ extractedText, extractedPrice, results });
+        res.json({ results });
     } catch (error) {
         console.error("Error running Puppeteer:", error);
         res.status(500).send("Failed to run Puppeteer script.");

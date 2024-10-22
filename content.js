@@ -105,13 +105,38 @@ function addPriceHistoryElement(parentElement, price, rating, link) {
             infoContainer.style.opacity = '1'; // Trigger the fade-in
         }, 50); // Small delay to ensure display change happens first
     
-        // Set loading text/effect
-        priceDiv.innerHTML = `<span style="font-size: smaller;">Price: </span>
-                              <span style="font-weight: bolder; font-size: medium;">Loading...</span>`;
-        ratingDiv.innerHTML = `<span style="font-size: smaller;">Rating: </span>
-                               <span style="font-weight: bolder; font-size: medium;">Loading...</span>`;
-        anchorTag.textContent = 'Loading...';  // Set anchor text to "Loading..."
+        // Set loading effect for priceDiv
+        priceDiv.innerHTML = `<div style="border: 4px solid #f3f3f3; border-top: 4px solid #3498db; 
+                                border-radius: 50%; width: 20px; height: 20px;
+                                animation: spin 1s linear infinite; display: inline-block; margin-left: 5px;">
+                            </div>`;
+        
+
+        // Set loading effect for ratingDiv
+        ratingDiv.innerHTML = `<div style="border: 4px solid #f3f3f3; border-top: 4px solid #3498db; 
+                                border-radius: 50%; width: 20px; height: 20px;
+                                animation: spin 1s linear infinite; display: inline-block; margin-left: 5px;">
+                            </div>`;
+        
+
+        // Set loading effect for anchorTag
+        anchorTag.innerHTML = `<div style="border: 4px solid #f3f3f3; border-top: 4px solid #3498db; 
+                                border-radius: 50%; width: 20px; height: 20px;
+                                animation: spin 1s linear infinite; display: inline-block;">
+                            </div>`;
         anchorTag.style.pointerEvents = 'none';  // Disable the link during loading
+
+        // Add the spinning animation keyframes directly in JavaScript
+        const style = document.createElement('style');
+        style.type = 'text/css';
+        style.innerHTML = `
+        @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+        }
+        `;
+        document.head.appendChild(style);
+
     
         // Send a message to the background script to trigger Puppeteer
         const currentUrl = window.location.href; 
