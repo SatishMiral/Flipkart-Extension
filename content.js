@@ -105,26 +105,13 @@ function addPriceHistoryElement(parentElement, price, rating, link) {
             infoContainer.style.opacity = '1'; // Trigger the fade-in
         }, 50); // Small delay to ensure display change happens first
     
-        // Set loading effect for priceDiv
-        priceDiv.innerHTML = `<div style="border: 4px solid #f3f3f3; border-top: 4px solid #3498db; 
-                                border-radius: 50%; width: 20px; height: 20px;
-                                animation: spin 1s linear infinite; display: inline-block; margin-left: 5px;">
-                            </div>`;
-        
-
         // Set loading effect for ratingDiv
         ratingDiv.innerHTML = `<div style="border: 4px solid #f3f3f3; border-top: 4px solid #3498db; 
                                 border-radius: 50%; width: 20px; height: 20px;
                                 animation: spin 1s linear infinite; display: inline-block; margin-left: 5px;">
                             </div>`;
         
-
-        // Set loading effect for anchorTag
-        anchorTag.innerHTML = `<div style="border: 4px solid #f3f3f3; border-top: 4px solid #3498db; 
-                                border-radius: 50%; width: 20px; height: 20px;
-                                animation: spin 1s linear infinite; display: inline-block;">
-                            </div>`;
-        anchorTag.style.pointerEvents = 'none';  // Disable the link during loading
+        anchorTag.innerHTML = '';  // Disable the link during loading
 
         // Add the spinning animation keyframes directly in JavaScript
         const style = document.createElement('style');
