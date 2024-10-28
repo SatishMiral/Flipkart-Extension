@@ -22,7 +22,7 @@ function addPriceHistoryElement(parentElement, price, rating, link) {
     let onAmazonButton = document.createElement('button');
     onAmazonButton.style.marginBottom = '0px';
     onAmazonButton.style.fontWeight = 'bold';
-    onAmazonButton.textContent = 'On Amazon';
+    onAmazonButton.textContent = 'ON AMAZON';
     onAmazonButton.style.textAlign = 'center';
     onAmazonButton.style.display = 'block';
     onAmazonButton.style.width = '100%'; // Full width for button
@@ -31,7 +31,7 @@ function addPriceHistoryElement(parentElement, price, rating, link) {
     onAmazonButton.style.border = 'none';
     onAmazonButton.style.borderRadius = '8px';
     onAmazonButton.style.cursor = 'pointer';
-    onAmazonButton.style.fontSize = 'larger';
+    onAmazonButton.style.fontSize = 'medium';
     onAmazonButton.style.color = '#fff';
     onAmazonButton.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, .2)';
 
