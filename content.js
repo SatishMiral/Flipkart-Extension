@@ -14,9 +14,9 @@ function addPriceHistoryElement(parentElement, price, rating, link) {
     mainDiv.style.boxShadow = 'rgba(0, 0, 0, 0.2) 2px 2px 5px';
     mainDiv.style.textAlign = 'center';
     mainDiv.style.display = 'block'; 
-    mainDiv.style.width = '50%'; // Set width to 50%
-    mainDiv.style.margin = '0'; // Align to the left
-    mainDiv.style.padding = '0px'; // Add padding for better spacing
+    mainDiv.style.width = '60%'; // Set width to 60%
+    mainDiv.style.marginTop = '10px'; 
+    mainDiv.style.padding = '0px'; 
 
     // Create a div for "On Amazon"
     let onAmazonButton = document.createElement('button');
@@ -62,6 +62,13 @@ function addPriceHistoryElement(parentElement, price, rating, link) {
     ratingDiv.style.paddingTop = '0.5rem';
     ratingDiv.style.width = '120px';
 
+    // Create the matching div
+    let matchingDiv = document.createElement('div');
+    matchingDiv.classList.add('pricehistory-remove-element');
+    matchingDiv.style.color = 'rgb(85, 85, 85)';
+    matchingDiv.style.paddingTop = '0.5rem';
+    matchingDiv.style.width = '120px';
+
     // Add an anchor tag
     let anchorTag = document.createElement('a');
     anchorTag.href = '#'; // Dummy href link
@@ -83,8 +90,9 @@ function addPriceHistoryElement(parentElement, price, rating, link) {
     // Append priceDiv, ratingDiv, and anchorTag to the flex container
     infoContainer.appendChild(priceDiv);
     infoContainer.appendChild(ratingDiv);
+    infoContainer.appendChild(matchingDiv);
     infoContainer.appendChild(anchorTag);
-
+    
     // Append the infoContainer to the mainDiv
     mainDiv.appendChild(infoContainer);
 
@@ -132,25 +140,44 @@ function addPriceHistoryElement(parentElement, price, rating, link) {
             if (response.error) {
                 console.error(response.error);
             } else {
-                // Convert extractedPrice and price to integers before comparing
-                var extractedPriceInt = parseInt(response.results[0].extractedPrice.replace(/₹|,/g, '')); // Remove ₹ symbol and commas
-                var priceInt = parseInt(response.results[0].price.replace(/,/g, '')); // Remove commas
+                const { results } = response;
+        
+                if (results && results.length > 0) {
+                    const { price, rating, link, percentage, extractedPrice } = results[0];
+        
+                    // Convert extractedPrice and price to integers before comparing
+                    var extractedPriceInt = parseInt(extractedPrice.replace(/₹|,/g, '')); // Remove ₹ symbol and commas
+                    var priceInt = parseInt(price.replace(/,/g, '')); // Remove commas
+        
+                    // Use a ternary operator to set the text color based on comparison
+                    var textColor = (priceInt < extractedPriceInt) 
+                                    ? 'rgb(56, 142, 60)'  // Green color if extracted price is less
+                                    : 'rgb(255, 0, 0)';  // Red color if extracted price is higher
+                    priceDiv.innerHTML = `<span style="font-size: small; color: ${textColor};">Price: </span>
+                                          <span style="font-weight: bold; font-size: larger; color: ${textColor};">₹${price}</span>`;
+                    ratingDiv.innerHTML = `<span style="font-size: small;">Rating: </span>
+                                           <span style="font-weight: bold; font-size: larger;">${rating}⭐</span>`;
 
-                // Use a ternary operator to set the text color based on comparison
-                var textColor = (priceInt < extractedPriceInt) 
-                                ? 'rgb(56, 142, 60)'  // Green color if extracted price is less
-                                : 'rgb(255, 0, 0)'; // Red color if extracted price is higher
-                priceDiv.innerHTML = `<span style="font-size: small; color: ${textColor};">Price: </span>
-                                      <span style="font-weight: bold; font-size: larger; color: ${textColor};">${response.results[0].price}</span>`;
-                ratingDiv.innerHTML = `<span style="font-size: small;">Rating: </span>
-                                       <span style="font-weight: bold; font-size: larger;">${response.results[0].rating}</span>`;
-    
-                // Set the anchor tag with the actual URL and change its text back to "View"
-                anchorTag.href = response.results[0].link;
-                anchorTag.textContent = 'view';  // Reset anchor text to "View"
-                anchorTag.style.pointerEvents = 'auto';  // Re-enable the link
+                    // Determine matchingDiv color based on percentage
+                    var matchTextColor;
+                    if (percentage >= 85) {
+                        matchTextColor = 'rgb(56, 142, 60)';  // Green
+                    } else if (percentage >= 60) {
+                        matchTextColor = 'rgb(255, 165, 0)';  // Yellow
+                    } else {
+                        matchTextColor = 'rgb(255, 0, 0)';     // Red
+                    }
+
+                    matchingDiv.innerHTML = `<span style="font-size: small; color: ${matchTextColor};">Matching: </span>
+                                            <span style="font-weight: bold; font-size: larger; color: ${matchTextColor};">${percentage.toFixed(0)}%</span>`;
+        
+                    // Set the anchor tag with the actual URL and change its text back to "View"
+                    anchorTag.href = link;
+                    anchorTag.textContent = 'view';  // Reset anchor text to "View"
+                    anchorTag.style.pointerEvents = 'auto';  // Re-enable the link
+                }
             }
-        });
+        });        
     });
 }
 
