@@ -9,7 +9,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         console.log("UrlToScrape: " + urlToScrape);
   
         // Make a request to the Node.js server running Puppeteer on port 3000
-        fetch(`http://13.60.212.174:3000/start-puppeteer?url=${encodeURIComponent(urlToScrape)}`)
+        fetch(`http:localhost:3000/start-puppeteer?url=${encodeURIComponent(urlToScrape)}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Server returned ${response.status}: ${response.statusText}`);
