@@ -1,13 +1,13 @@
 // Function to add price history element
-function addPriceHistoryElement(parentElement, price, rating, link) {
-    // Check if the price history div is already added to avoid duplication
-    if (parentElement.querySelector('.pricehistory-remove-element')) {
+function addOnAmazonElement(parentElement, price, rating, link) {
+    // Check if the OnAmazon div is already added to avoid duplication
+    if (parentElement.querySelector('.product-info-container')) {
         return;  // Exit if the element already exists
     }
 
     // Create the main div container
     let mainDiv = document.createElement('div');
-    mainDiv.classList.add('pricehistory-remove-element');
+    mainDiv.classList.add('product-info-container');
     mainDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.063)';
     mainDiv.style.borderRadius = '0.25rem';
     mainDiv.style.marginBottom = '0.5rem';
@@ -15,8 +15,8 @@ function addPriceHistoryElement(parentElement, price, rating, link) {
     mainDiv.style.textAlign = 'center';
     mainDiv.style.display = 'block'; 
     mainDiv.style.width = '60%'; // Set width to 60%
-    mainDiv.style.marginTop = '10px'; 
-    mainDiv.style.padding = '0px'; 
+    mainDiv.style.marginTop = '10px';
+    mainDiv.style.padding = '0px';
 
     // Create a div for "On Amazon"
     let onAmazonButton = document.createElement('button');
@@ -49,25 +49,18 @@ function addPriceHistoryElement(parentElement, price, rating, link) {
     infoContainer.style.paddingBottom = '7px';
 
     // Create the price div
-    let priceDiv = document.createElement('div');//Nx9bqj CxhGGd
-    priceDiv.classList.add('pricehistory-remove-element');
+    let priceDiv = document.createElement('div');
+    priceDiv.classList.add('product-info-container');
     priceDiv.style.color = 'rgb(85, 85, 85)';
     priceDiv.style.paddingTop = '0.5rem';
     priceDiv.style.width = '120px';
 
     // Create the rating div
     let ratingDiv = document.createElement('div');
-    ratingDiv.classList.add('pricehistory-remove-element');
+    ratingDiv.classList.add('product-info-container');
     ratingDiv.style.color = 'rgb(85, 85, 85)';
     ratingDiv.style.paddingTop = '0.5rem';
     ratingDiv.style.width = '120px';
-
-    // Create the matching div
-    let matchingDiv = document.createElement('div');
-    matchingDiv.classList.add('pricehistory-remove-element');
-    matchingDiv.style.color = 'rgb(85, 85, 85)';
-    matchingDiv.style.paddingTop = '0.5rem';
-    matchingDiv.style.width = '120px';
 
     // Add an anchor tag
     let anchorTag = document.createElement('a');
@@ -90,7 +83,6 @@ function addPriceHistoryElement(parentElement, price, rating, link) {
     // Append priceDiv, ratingDiv, and anchorTag to the flex container
     infoContainer.appendChild(priceDiv);
     infoContainer.appendChild(ratingDiv);
-    infoContainer.appendChild(matchingDiv);
     infoContainer.appendChild(anchorTag);
     
     // Append the infoContainer to the mainDiv
@@ -141,6 +133,7 @@ function addPriceHistoryElement(parentElement, price, rating, link) {
                 console.error(response.error);
             } else {
                 const { results } = response;
+                console.log("the revieved response is", results);
         
                 if (results && results.length > 0) {
                     const { price, rating, link, percentage, extractedPrice } = results[0];
@@ -154,7 +147,7 @@ function addPriceHistoryElement(parentElement, price, rating, link) {
                                     ? 'rgb(56, 142, 60)'  // Green color if extracted price is less
                                     : 'rgb(255, 0, 0)';  // Red color if extracted price is higher
                     priceDiv.innerHTML = `<span style="font-size: small; color: ${textColor};">Price: </span>
-                                          <span style="font-weight: bold; font-size: larger; color: ${textColor};">₹${price}</span>`;
+                                          <span style="font-weight: bold; font-size: larger; color: ${textColor};">${price}</span>`;
                     ratingDiv.innerHTML = `<span style="font-size: small;">Rating: </span>
                                            <span style="font-weight: bold; font-size: larger;">${rating}⭐</span>`;
 
@@ -167,9 +160,6 @@ function addPriceHistoryElement(parentElement, price, rating, link) {
                     } else {
                         matchTextColor = 'rgb(255, 0, 0)';     // Red
                     }
-
-                    matchingDiv.innerHTML = `<span style="font-size: small; color: ${matchTextColor};">Matching: </span>
-                                            <span style="font-weight: bold; font-size: larger; color: ${matchTextColor};">${percentage.toFixed(0)}%</span>`;
         
                     // Set the anchor tag with the actual URL and change its text back to "View"
                     anchorTag.href = link;
@@ -183,21 +173,11 @@ function addPriceHistoryElement(parentElement, price, rating, link) {
 
 // Initial call to add the price history element when the page first loads
 window.addEventListener('load', () => {
-    let parentElements = document.querySelectorAll('.C7fEHH');  // Adjust the selector as necessary
+    // Find all parent elements with the class 'C7fEHH'
+    let parentElements = document.querySelectorAll('.C7fEHH');
+
+    // Loop through all the parent elements and add the price history element to each one
     parentElements.forEach(parentElement => {
-        addPriceHistoryElement(parentElement);
+        addOnAmazonElement(parentElement);
     });
 });
-
-// Observe changes in the DOM for dynamically loaded content
-const observer = new MutationObserver(mutations => {
-    mutations.forEach(mutation => {
-        let parentElements = document.querySelectorAll('.C7fEHH');  // Adjust the selector as necessary
-        parentElements.forEach(parentElement => {
-            addPriceHistoryElement(parentElement);
-        });
-    });
-});
-
-// Start observing the document body for changes
-observer.observe(document.body, { childList: true, subtree: true });
