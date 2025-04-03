@@ -42,7 +42,7 @@ This Chrome extension enhances your Flipkart shopping experience by displaying a
 The ON AMAZON button is shown when user views a product on Flipkart.
 
 ![Product Comparison](./screenshots/ss2.png)  
-When the user clicks on the button he can see the same or similar products price, rating and matching percentage of that product on Amazon.
+When the user clicks on the button he can see the same or similar products price, rating and matching percentage of that product from Amazon.
 
 ![Product Comparison](./screenshots/ss3.png)  
 Upon clicking on view the user can view the product on Amazon
