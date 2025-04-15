@@ -1,17 +1,33 @@
+// Function to detect if we're on Amazon
+function isAmazon() {
+    return window.location.hostname.includes('amazon.in');
+}
+
+// Function to detect if we're on Flipkart
+function isFlipkart() {
+    return window.location.hostname.includes('flipkart.com');
+}
+
 // Initial call to add the element when the page first loads
 window.addEventListener('load', () => {
-    // Find all parent elements with the class 'C7fEHH'
-    let parentElements = document.querySelectorAll('.C7fEHH');
-
-    // Loop through all the parent elements and add the price history element to each one
-    parentElements.forEach(parentElement => {
-        addOnAmazonElement(parentElement);
-    });
+    if (isFlipkart()) {
+        // Find all parent elements with the class 'C7fEHH' (Flipkart)
+        let parentElements = document.querySelectorAll('.C7fEHH');
+        parentElements.forEach(parentElement => {
+            addCompareElement(parentElement);
+        });
+    } else if (isAmazon()) {
+        // Find the price display div on Amazon
+        let parentElement = document.querySelector('#corePriceDisplay_desktop_feature_div');
+        if (parentElement) {
+            addCompareElement(parentElement);
+        }
+    }
 });
 
-// Function to add onAmazon element
-function addOnAmazonElement( parentElement ) {
-    // Check if the OnAmazon div is already added to avoid duplication
+// Function to add compare element 
+function addCompareElement(parentElement) {
+    // Check if the element is already added to avoid duplication
     if (parentElement.querySelector('.product-info-container')) {
         return;  
     }
@@ -25,28 +41,31 @@ function addOnAmazonElement( parentElement ) {
     mainDiv.style.boxShadow = 'rgba(0, 0, 0, 0.2) 2px 2px 5px';
     mainDiv.style.textAlign = 'center';
     mainDiv.style.display = 'block'; 
-    mainDiv.style.width = '60%'; 
+    mainDiv.style.width = isAmazon() ? '90%' : '60%'; 
     mainDiv.style.marginTop = '10px';
     mainDiv.style.padding = '0px';
 
-    // Create a div for "On Amazon"
-    let onAmazonButton = document.createElement('button');
-    onAmazonButton.style.marginBottom = '0px';
-    onAmazonButton.style.fontWeight = 'bold';
-    onAmazonButton.textContent = 'COMPARE ON AMAZON';
-    onAmazonButton.style.textAlign = 'center';
-    onAmazonButton.style.display = 'block';
-    onAmazonButton.style.width = '100%'; 
-    onAmazonButton.style.padding = '10px';
-    onAmazonButton.style.backgroundColor = '#ff9f00'; 
-    onAmazonButton.style.border = 'none';
-    onAmazonButton.style.borderRadius = '8px';
-    onAmazonButton.style.cursor = 'pointer';
-    onAmazonButton.style.fontSize = 'medium';
-    onAmazonButton.style.color = '#fff';
-    onAmazonButton.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, .2)';
+    // Change button text based on which site we're on
+    let buttonText = isAmazon() ? 'COMPARE ON FLIPKART' : 'COMPARE ON AMAZON';
+    
+    // Create a div for the comparison button
+    let compareButton = document.createElement('button');
+    compareButton.style.marginBottom = '0px';
+    compareButton.style.fontWeight = 'bold';
+    compareButton.textContent = buttonText;
+    compareButton.style.textAlign = 'center';
+    compareButton.style.display = 'block';
+    compareButton.style.width = '100%'; 
+    compareButton.style.padding = '10px';
+    compareButton.style.backgroundColor = '#ff9f00'; 
+    compareButton.style.border = 'none';
+    compareButton.style.borderRadius = '8px';
+    compareButton.style.cursor = 'pointer';
+    compareButton.style.fontSize = 'medium';
+    compareButton.style.color = '#fff';
+    compareButton.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, .2)';
 
-    mainDiv.appendChild(onAmazonButton);
+    mainDiv.appendChild(compareButton);
     
     // Initially, create a hidden container for price, rating, and link
     let infoContainer = document.createElement('div');
@@ -99,15 +118,15 @@ function addOnAmazonElement( parentElement ) {
     // Append the infoContainer to the mainDiv
     mainDiv.appendChild(infoContainer);
 
-    // Append the main div inside the div with class 'C7fEHH'
+    // Append the main div inside the parent element
     parentElement.appendChild(mainDiv);
 
-    // Add click event listener to the Amazon button
-    onAmazonButton.addEventListener("click", () => {
+    // Add click event listener to the comparison button
+    compareButton.addEventListener("click", () => {
         // Click effect for the button
-        onAmazonButton.style.backgroundColor = '#FFD814'; 
+        compareButton.style.backgroundColor = '#FFD814'; 
         setTimeout(() => {
-            onAmazonButton.style.backgroundColor = '#ff9f00'; 
+            compareButton.style.backgroundColor = '#ff9f00'; 
         }, 100);
         
         // Show the hidden container with fade-in effect
@@ -137,30 +156,50 @@ function addOnAmazonElement( parentElement ) {
         // Send a message to the background script to trigger Puppeteer
         const currentUrl = window.location.href;  
         console.log("CurrentURL: " + currentUrl);
-        chrome.runtime.sendMessage({ action: "startPuppeteer", url: currentUrl }, (response) => {
+        
+        // Determine which action to send based on current site
+        const action = isAmazon() ? "startPuppeteerFromAmazon" : "startPuppeteerFromFlipKart";
+        
+        chrome.runtime.sendMessage({ action: action, url: currentUrl }, (response) => {
             if (response.error) {
                 console.error(response.error);
             } else {
                 console.log("the response is", response);
-                const { amazon } = response;
-                const { flipkart } = response;
-                console.log("the received amazon response is", amazon);
-                console.log("the recieved flipkart response is", flipkart);
+                const { amazonData } = response;
+                const { flipkartData } = response;
+                console.log("the received amazon response is", amazonData);
+                console.log("the received flipkart response is", flipkartData);
         
-                if ( amazon && flipkart ) {
-                    const { price, rating, link } = amazon;   
-                    const extractedPrice = flipkart.price;
-        
+                if (amazonData && flipkartData) {
+                    // Determine which data to show based on current site
+                    // const currentSiteData = isAmazon() ? flipkartData : amazonData;
+                    // const otherSiteData = isAmazon() ? amazonData : flipkartData;
+                    const { price, rating, link } = amazonData;   
+                    const extractedPrice = flipkartData.price;
+
                     // Convert extractedPrice and price to integers before comparing
                     var extractedPriceInt = parseInt(extractedPrice.replace(/₹|,/g, '')); 
                     var priceInt = parseInt(price.replace(/₹|,/g, '')); 
+                    
+                    // Get the current site's price for comparison
+                    // const currentPriceElement = isAmazon() 
+                    //     ? document.querySelector('.a-price-whole') 
+                    //     : document.querySelector('._30jeq3');
+                    
+                    // let currentPrice = currentPriceElement ? currentPriceElement.textContent : '0';
+                    
+                    // Convert prices to integers for comparison
+                    // const currentPriceInt = parseInt(currentPrice.replace(/₹|,|\./g, ''));
+                    // const otherPriceInt = parseInt(currentSiteData.price.replace(/₹|,|\./g, ''));
         
                     // Use a ternary operator to set the text color based on comparison
-                    var textColor = (priceInt < extractedPriceInt) ? 'rgb(56, 142, 60)'  : 'rgb(255, 0, 0)';  
+                    const textColor = (priceInt < extractedPriceInt) ? 'rgb(56, 142, 60)' : 'rgb(255, 0, 0)';   
+                    
                     priceDiv.innerHTML = `<span style="font-size: small; color: ${textColor};">Price: </span>
-                                          <span style="font-weight: bold; font-size: larger; color: ${textColor};">${price}</span>`;
+                                        <span style="font-weight: bold; font-size: larger; color: ${textColor};">${price}</span>`;
+                    
                     ratingDiv.innerHTML = `<span style="font-size: small;">Rating: </span>
-                                           <span style="font-weight: bold; font-size: larger;">${rating}⭐</span>`;
+                                         <span style="font-weight: bold; font-size: larger;">${rating}⭐</span>`;
         
                     // Set the anchor tag with the actual URL and change its text back to "View"
                     anchorTag.href = link;

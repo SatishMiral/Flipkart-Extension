@@ -1,7 +1,7 @@
 // background.js
 
-chrome.runtime.onMessage.addListener((message, sendResponse) => {
-    if (message.action === "startPuppeteer") {
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if (message.action === "startPuppeteerFromFlipKart") {
         console.log("Message received to start Puppeteer");
   
         // Get the URL sent from the content script
@@ -9,12 +9,12 @@ chrome.runtime.onMessage.addListener((message, sendResponse) => {
         console.log("UrlToScrape: " + urlToScrape);
   
         // Make a request to the Node.js server running Puppeteer on port 3000
-        fetch(`http://localhost:3000/compare-product?url=${encodeURIComponent(urlToScrape)}`)
+        fetch(`http://localhost:3000/compare-flipkart-product?url=${encodeURIComponent(urlToScrape)}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error(`Server returned ${response.status}: ${response.statusText}`);
             }
-            return response.json(); 
+            return response.json(); // Only parse JSON if the response is OK
         })
         .then(data => {
             console.log("Puppeteer data received:", data);
