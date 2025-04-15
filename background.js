@@ -1,6 +1,6 @@
 // background.js
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message, sendResponse) => {
     if (message.action === "startPuppeteer") {
         console.log("Message received to start Puppeteer");
   
@@ -14,11 +14,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             if (!response.ok) {
                 throw new Error(`Server returned ${response.status}: ${response.statusText}`);
             }
-            return response.json(); // Only parse JSON if the response is OK
+            return response.json(); 
         })
         .then(data => {
             console.log("Puppeteer data received:", data);
-            sendResponse(data); // Send the data back to the content script
+            sendResponse(data); 
         })
         .catch(error => {
             console.error("Error calling Puppeteer:", error);

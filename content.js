@@ -1,8 +1,19 @@
-// Function to add price history element
-function addOnAmazonElement(parentElement, price, rating, link) {
+// Initial call to add the element when the page first loads
+window.addEventListener('load', () => {
+    // Find all parent elements with the class 'C7fEHH'
+    let parentElements = document.querySelectorAll('.C7fEHH');
+
+    // Loop through all the parent elements and add the price history element to each one
+    parentElements.forEach(parentElement => {
+        addOnAmazonElement(parentElement);
+    });
+});
+
+// Function to add onAmazon element
+function addOnAmazonElement( parentElement ) {
     // Check if the OnAmazon div is already added to avoid duplication
     if (parentElement.querySelector('.product-info-container')) {
-        return;  // Exit if the element already exists
+        return;  
     }
 
     // Create the main div container
@@ -14,7 +25,7 @@ function addOnAmazonElement(parentElement, price, rating, link) {
     mainDiv.style.boxShadow = 'rgba(0, 0, 0, 0.2) 2px 2px 5px';
     mainDiv.style.textAlign = 'center';
     mainDiv.style.display = 'block'; 
-    mainDiv.style.width = '60%'; // Set width to 60%
+    mainDiv.style.width = '60%'; 
     mainDiv.style.marginTop = '10px';
     mainDiv.style.padding = '0px';
 
@@ -22,12 +33,12 @@ function addOnAmazonElement(parentElement, price, rating, link) {
     let onAmazonButton = document.createElement('button');
     onAmazonButton.style.marginBottom = '0px';
     onAmazonButton.style.fontWeight = 'bold';
-    onAmazonButton.textContent = 'ON AMAZON';
+    onAmazonButton.textContent = 'COMPARE ON AMAZON';
     onAmazonButton.style.textAlign = 'center';
     onAmazonButton.style.display = 'block';
-    onAmazonButton.style.width = '100%'; // Full width for button
+    onAmazonButton.style.width = '100%'; 
     onAmazonButton.style.padding = '10px';
-    onAmazonButton.style.backgroundColor = '#ff9f00'; // orangish color
+    onAmazonButton.style.backgroundColor = '#ff9f00'; 
     onAmazonButton.style.border = 'none';
     onAmazonButton.style.borderRadius = '8px';
     onAmazonButton.style.cursor = 'pointer';
@@ -64,20 +75,20 @@ function addOnAmazonElement(parentElement, price, rating, link) {
 
     // Add an anchor tag
     let anchorTag = document.createElement('a');
-    anchorTag.href = '#'; // Dummy href link
-    anchorTag.textContent = 'view'; // Set the anchor tag's text to "View"
-    anchorTag.target = '_blank'; // Opens link in a new tab
+    anchorTag.href = '#'; 
+    anchorTag.textContent = 'view';
+    anchorTag.target = '_blank'; 
     anchorTag.style.width = '120px';
     anchorTag.style.fontSize = 'medium';
     anchorTag.style.marginTop = '7px';
 
     // Add hover effect using event listeners
     anchorTag.addEventListener('mouseover', () => {
-        anchorTag.style.color = 'blue'; // Change text color to blue on hover
+        anchorTag.style.color = 'blue'; 
     });
 
     anchorTag.addEventListener('mouseout', () => {
-        anchorTag.style.color = ''; // Reset text color when not hovering
+        anchorTag.style.color = ''; 
     });
 
     // Append priceDiv, ratingDiv, and anchorTag to the flex container
@@ -94,16 +105,16 @@ function addOnAmazonElement(parentElement, price, rating, link) {
     // Add click event listener to the Amazon button
     onAmazonButton.addEventListener("click", () => {
         // Click effect for the button
-        onAmazonButton.style.backgroundColor = '#FFD814'; // Change to yellow on click
+        onAmazonButton.style.backgroundColor = '#FFD814'; 
         setTimeout(() => {
-            onAmazonButton.style.backgroundColor = '#ff9f00'; // Revert to original color after 100ms
+            onAmazonButton.style.backgroundColor = '#ff9f00'; 
         }, 100);
         
         // Show the hidden container with fade-in effect
-        infoContainer.style.display = 'flex'; // Show it
+        infoContainer.style.display = 'flex'; 
         setTimeout(() => {
             infoContainer.style.opacity = '1'; // Trigger the fade-in
-        }, 50); // Small delay to ensure display change happens first
+        }, 50); 
     
         // Set loading effect for ratingDiv
         ratingDiv.innerHTML = `<div style="border: 4px solid #f3f3f3; border-top: 4px solid #3498db; 
@@ -116,68 +127,47 @@ function addOnAmazonElement(parentElement, price, rating, link) {
         // Add the spinning animation keyframes directly in JavaScript
         const style = document.createElement('style');
         style.type = 'text/css';
-        style.innerHTML = `
-        @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-        }
-        `;
+        style.innerHTML =`@keyframes spin {
+                            0% { transform: rotate(0deg); }
+                            100% { transform: rotate(360deg); }
+                          }`;
+        
         document.head.appendChild(style);
-
     
         // Send a message to the background script to trigger Puppeteer
-        const currentUrl = window.location.href; 
+        const currentUrl = window.location.href;  
         console.log("CurrentURL: " + currentUrl);
         chrome.runtime.sendMessage({ action: "startPuppeteer", url: currentUrl }, (response) => {
             if (response.error) {
                 console.error(response.error);
             } else {
-                const { results } = response;
-                console.log("the revieved response is", results);
+                console.log("the response is", response);
+                const { amazon } = response;
+                const { flipkart } = response;
+                console.log("the received amazon response is", amazon);
+                console.log("the recieved flipkart response is", flipkart);
         
-                if (results && results.length > 0) {
-                    const { price, rating, link, percentage, extractedPrice } = results[0];
+                if ( amazon && flipkart ) {
+                    const { price, rating, link } = amazon;   
+                    const extractedPrice = flipkart.price;
         
                     // Convert extractedPrice and price to integers before comparing
-                    var extractedPriceInt = parseInt(extractedPrice.replace(/₹|,/g, '')); // Remove ₹ symbol and commas
-                    var priceInt = parseInt(price.replace(/,/g, '')); // Remove commas
+                    var extractedPriceInt = parseInt(extractedPrice.replace(/₹|,/g, '')); 
+                    var priceInt = parseInt(price.replace(/₹|,/g, '')); 
         
                     // Use a ternary operator to set the text color based on comparison
-                    var textColor = (priceInt < extractedPriceInt) 
-                                    ? 'rgb(56, 142, 60)'  // Green color if extracted price is less
-                                    : 'rgb(255, 0, 0)';  // Red color if extracted price is higher
+                    var textColor = (priceInt < extractedPriceInt) ? 'rgb(56, 142, 60)'  : 'rgb(255, 0, 0)';  
                     priceDiv.innerHTML = `<span style="font-size: small; color: ${textColor};">Price: </span>
                                           <span style="font-weight: bold; font-size: larger; color: ${textColor};">${price}</span>`;
                     ratingDiv.innerHTML = `<span style="font-size: small;">Rating: </span>
                                            <span style="font-weight: bold; font-size: larger;">${rating}⭐</span>`;
-
-                    // Determine matchingDiv color based on percentage
-                    var matchTextColor;
-                    if (percentage >= 85) {
-                        matchTextColor = 'rgb(56, 142, 60)';  // Green
-                    } else if (percentage >= 60) {
-                        matchTextColor = 'rgb(255, 165, 0)';  // Yellow
-                    } else {
-                        matchTextColor = 'rgb(255, 0, 0)';     // Red
-                    }
         
                     // Set the anchor tag with the actual URL and change its text back to "View"
                     anchorTag.href = link;
-                    anchorTag.textContent = 'view';  // Reset anchor text to "View"
+                    anchorTag.textContent = 'view';  
                     anchorTag.style.pointerEvents = 'auto';  // Re-enable the link
                 }
             }
         });        
     });
 }
-
-// Initial call to add the price history element when the page first loads
-window.addEventListener('load', () => {
-    // Find all parent elements with the class 'C7fEHH'
-    let parentElements = document.querySelectorAll('.C7fEHH');
-
-    // Loop through all the parent elements and add the price history element to each one
-    parentElements.forEach(parentElement => {
-        addOnAmazonElement(parentElement);
-    });
-});
