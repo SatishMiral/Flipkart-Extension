@@ -165,6 +165,7 @@ function addCompareElement(parentElement) {
                 console.error(response.error);
             } else {
                 console.log("the response is", response);
+                const { website } = response;
                 const { amazonData } = response;
                 const { flipkartData } = response;
                 console.log("the received amazon response is", amazonData);
@@ -172,25 +173,18 @@ function addCompareElement(parentElement) {
         
                 if (amazonData && flipkartData) {
                     // Determine which data to show based on current site
-                    // const currentSiteData = isAmazon() ? flipkartData : amazonData;
-                    // const otherSiteData = isAmazon() ? amazonData : flipkartData;
-                    const { price, rating, link } = amazonData;   
-                    const extractedPrice = flipkartData.price;
+                    if(website == "flipkart"){
+                        var { price, rating, link } = amazonData;
+                        var extractedPrice = flipkartData.price;   
+                    }
+                    else if(website == "amazon"){
+                        var { price, rating, link } = flipkartData;  
+                        var extractedPrice = amazonData.price; 
+                    }
 
                     // Convert extractedPrice and price to integers before comparing
                     var extractedPriceInt = parseInt(extractedPrice.replace(/₹|,/g, '')); 
                     var priceInt = parseInt(price.replace(/₹|,/g, '')); 
-                    
-                    // Get the current site's price for comparison
-                    // const currentPriceElement = isAmazon() 
-                    //     ? document.querySelector('.a-price-whole') 
-                    //     : document.querySelector('._30jeq3');
-                    
-                    // let currentPrice = currentPriceElement ? currentPriceElement.textContent : '0';
-                    
-                    // Convert prices to integers for comparison
-                    // const currentPriceInt = parseInt(currentPrice.replace(/₹|,|\./g, ''));
-                    // const otherPriceInt = parseInt(currentSiteData.price.replace(/₹|,|\./g, ''));
         
                     // Use a ternary operator to set the text color based on comparison
                     const textColor = (priceInt < extractedPriceInt) ? 'rgb(56, 142, 60)' : 'rgb(255, 0, 0)';   
