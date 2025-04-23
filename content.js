@@ -65,6 +65,22 @@ function addCompareElement(parentElement) {
     compareButton.style.color = '#fff';
     compareButton.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, .2)';
 
+    // Create an img element for the icon
+    let iconImg = document.createElement('img');
+    iconImg.src = 'https://www.svgrepo.com/show/487227/compare.svg';
+    iconImg.style.height = '25px'; 
+    iconImg.style.marginRight = '3px'; 
+    iconImg.style.verticalAlign = 'middle'; 
+    iconImg.style.filter = 'invert(1) brightness(2)';
+    iconImg.style.transition = 'transform 0.3s ease'; // Smooth transition
+
+    // Clear button text first
+    compareButton.textContent = '';
+
+    // Append the icon and text to the button
+    compareButton.appendChild(iconImg);
+    compareButton.append(' ' + buttonText);
+
     mainDiv.appendChild(compareButton);
     
     // Initially, create a hidden container for price, rating, and link
@@ -104,10 +120,12 @@ function addCompareElement(parentElement) {
     // Add hover effect using event listeners
     anchorTag.addEventListener('mouseover', () => {
         anchorTag.style.color = 'blue'; 
+        anchorTag.style.textDecoration = 'underline'; 
     });
 
     anchorTag.addEventListener('mouseout', () => {
         anchorTag.style.color = ''; 
+        anchorTag.style.textDecoration = 'none'; 
     });
 
     // Append priceDiv, ratingDiv, and anchorTag to the flex container
@@ -123,11 +141,7 @@ function addCompareElement(parentElement) {
 
     // Add click event listener to the comparison button
     compareButton.addEventListener("click", () => {
-        // Click effect for the button
-        compareButton.style.backgroundColor = '#FFD814'; 
-        setTimeout(() => {
-            compareButton.style.backgroundColor = '#ff9f00'; 
-        }, 100);
+        iconImg.style.transform = 'rotate(180deg)';
         
         // Show the hidden container with fade-in effect
         infoContainer.style.display = 'flex'; 
