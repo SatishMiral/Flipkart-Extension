@@ -6,7 +6,8 @@
   "permissions": [
     "activeTab",
     "scripting",
-    "background"
+    "background",
+    "storage"
   ],
   "host_permissions": [
     "https://www.flipkart.com/*",

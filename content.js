@@ -22,8 +22,171 @@ window.addEventListener('load', () => {
         if (parentElement) {
             addCompareElement(parentElement);
         }
+        
+        // Check for stored comparison data from Flipkart
+        checkForStoredComparisonData();
     }
 });
+
+// Function to check for stored comparison data
+function checkForStoredComparisonData() {
+    chrome.storage.local.get('comparisonData', (data) => {
+        if (data.comparisonData) {
+            console.log("Found comparison data:", data.comparisonData);
+            displayComparisonData(data.comparisonData);
+            
+            // Clear the data after displaying it
+            chrome.storage.local.remove('comparisonData');
+        }
+    });
+}
+
+// Function to display comparison data on the current site
+function displayComparisonData(data) {
+    // Determine which site we're on
+    const isOnAmazon = isAmazon();
+    const isOnFlipkart = isFlipkart();
+    
+    // Find target element based on current site
+    let targetElement;
+    if (isOnAmazon) {
+        targetElement = document.querySelector('#corePriceDisplay_desktop_feature_div') || 
+                        document.querySelector('#centerCol');
+    } else if (isOnFlipkart) {
+        targetElement = document.querySelector('.C7fEHH');
+    }
+    
+    if (!targetElement) {
+        console.error("Could not find target element on page");
+        return;
+    }
+    
+    // Create comparison box
+    const comparisonBox = document.createElement('div');
+    comparisonBox.style.backgroundColor = '#f8f8f8';
+    comparisonBox.style.border = '1px solid #ddd';
+    comparisonBox.style.borderRadius = '8px';
+    comparisonBox.style.padding = '15px';
+    comparisonBox.style.margin = '15px 0';
+    comparisonBox.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
+    
+    // Add logo based on source
+    const logoDiv = document.createElement('div');
+    logoDiv.style.display = 'flex';
+    logoDiv.style.alignItems = 'center';
+    logoDiv.style.marginBottom = '10px';
+    
+    const logo = document.createElement('img');
+    
+    // Set logo based on the source of the data
+    if (data.source === 'flipkart') {
+        logo.src = 'https://images.ctfassets.net/drk57q8lctrm/4QgGDTtQYDx6oDaW3aU7KS/34163f3bef6d82fd354a7455d07102eb/flipkart-logo.webp';
+        logo.style.height = '20px';
+    } else {
+        logo.src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a9/Amazon_logo.svg/2560px-Amazon_logo.svg.png';
+        logo.style.height = '20px';
+    }
+    
+    logo.style.marginRight = '10px';
+    
+    logoDiv.appendChild(logo);
+    logoDiv.appendChild(document.createTextNode('Price Comparison'));
+    
+    // Create content
+    const content = document.createElement('div');
+    
+    // Get current site's price for comparison if available
+    let currentSitePrice = 'N/A';
+    let currentSitePriceNum = NaN;
+    
+    if (isOnAmazon) {
+        const amazonPriceElement = document.querySelector('.a-price-whole');
+        currentSitePrice = amazonPriceElement ? amazonPriceElement.innerText : 'N/A';
+        currentSitePriceNum = parseInt(currentSitePrice.replace(/[^\d]/g, ''));
+    } else if (isOnFlipkart) {
+        const flipkartPriceElement = document.querySelector('.Nx9bqj.CxhGGd.yKS4la');
+        currentSitePrice = flipkartPriceElement ? flipkartPriceElement.innerText : 'N/A';
+        currentSitePriceNum = parseInt(currentSitePrice.replace(/[^\d]/g, ''));
+    }
+    
+    // Convert comparison price to number
+    const comparisonPriceNum = parseInt(data.price.replace(/[^\d]/g, ''));
+    
+    let priceDiff = 0;
+    let savingsText = '';
+    
+    if (!isNaN(comparisonPriceNum) && !isNaN(currentSitePriceNum)) {
+        priceDiff = currentSitePriceNum - comparisonPriceNum;
+        
+        const otherSiteName = data.source === 'flipkart' ? 'Flipkart' : 'Amazon';
+        const currentSiteName = isOnAmazon ? 'Amazon' : 'Flipkart';
+        
+        if (priceDiff > 0) {
+            savingsText = `<div style="color: #388e3c; font-weight: bold; margin-top: 5px;">
+                Save ₹${priceDiff.toLocaleString('en-IN')} on ${otherSiteName}!</div>`;
+        } else if (priceDiff < 0) {
+            savingsText = `<div style="color: #388e3c; font-weight: bold; margin-top: 5px;">
+                Better price on ${currentSiteName} by ₹${Math.abs(priceDiff).toLocaleString('en-IN')}!</div>`;
+        }
+    }
+    
+    const sourceName = data.source === 'flipkart' ? 'Flipkart' : 'Amazon';
+    
+    content.innerHTML = `
+        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+            <div>
+                <div style="font-weight: bold;">Price on ${sourceName}:</div>
+                <div style="font-size: 18px; color: #ff5722;">${data.price}</div>
+            </div>
+            <div>
+                <div style="font-weight: bold;">Rating on ${sourceName}:</div>
+                <div style="font-size: 18px;">${data.rating} ⭐</div>
+            </div>
+        </div>
+        ${savingsText}
+        <div style="margin-top: 10px;">
+            <a href="${data.link}" target="_blank" style="color: ${data.source === 'flipkart' ? '#2874f0' : '#ff9900'}; 
+               text-decoration: none; display: inline-block; padding: 8px 15px; 
+               background-color: #fff; border: 1px solid ${data.source === 'flipkart' ? '#2874f0' : '#ff9900'}; 
+               border-radius: 4px;">
+                View on ${sourceName}
+            </a>
+        </div>
+    `;
+    
+    comparisonBox.appendChild(logoDiv);
+    comparisonBox.appendChild(content);
+    
+    // Add close button
+    const closeButton = document.createElement('div');
+    closeButton.textContent = '×';
+    closeButton.style.position = 'absolute';
+    closeButton.style.top = '5px';
+    closeButton.style.right = '10px';
+    closeButton.style.cursor = 'pointer';
+    closeButton.style.fontSize = '20px';
+    closeButton.style.color = '#666';
+    
+    closeButton.addEventListener('click', () => {
+        comparisonBox.remove();
+    });
+    
+    comparisonBox.style.position = 'relative';
+    comparisonBox.appendChild(closeButton);
+    
+    // Insert at the beginning of the target element
+    targetElement.insertBefore(comparisonBox, targetElement.firstChild);
+    
+    // Add a subtle entrance animation
+    comparisonBox.style.opacity = '0';
+    comparisonBox.style.transform = 'translateY(20px)';
+    comparisonBox.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+    
+    setTimeout(() => {
+        comparisonBox.style.opacity = '1';
+        comparisonBox.style.transform = 'translateY(0)';
+    }, 100);
+}
 
 // Function to add compare element 
 function addCompareElement(parentElement) {
@@ -108,15 +271,22 @@ function addCompareElement(parentElement) {
     ratingDiv.style.paddingTop = '0.5rem';
     ratingDiv.style.width = '120px';
 
-    // Add an anchor tag
+    // Add an anchor tag with wrapper for animation purposes
+    let anchorWrapper = document.createElement('div');
+    anchorWrapper.style.width = '120px';
+    anchorWrapper.style.position = 'relative';
+    anchorWrapper.style.overflow = 'hidden';
+    anchorWrapper.style.marginTop = '7px';
+    
     let anchorTag = document.createElement('a');
     anchorTag.href = '#'; 
     anchorTag.textContent = 'view';
     anchorTag.target = '_blank'; 
-    anchorTag.style.width = '120px';
     anchorTag.style.fontSize = 'medium';
-    anchorTag.style.marginTop = '7px';
-
+    anchorTag.style.cursor = 'pointer';
+    anchorTag.style.display = 'inline-block';
+    anchorTag.style.textDecoration = 'none';
+    
     // Add hover effect using event listeners
     anchorTag.addEventListener('mouseover', () => {
         anchorTag.style.color = 'blue'; 
@@ -127,17 +297,87 @@ function addCompareElement(parentElement) {
         anchorTag.style.color = ''; 
         anchorTag.style.textDecoration = 'none'; 
     });
+    
+    // Create arrow icon for animation (hidden initially)
+    let arrowIcon = document.createElement('img');
+    arrowIcon.src = 'https://www.vhv.rs/dpng/d/497-4974557_arrow-icon-in-flat-flat-design-arrow-png.png'; 
+    arrowIcon.style.height = '16px';
+    arrowIcon.style.position = 'absolute';
+    arrowIcon.style.top = '2px';
+    arrowIcon.style.left = '-20px'; 
+    arrowIcon.style.transition = 'left 1.7s ease';
+    arrowIcon.style.opacity = '0';
+    
+    anchorWrapper.appendChild(anchorTag);
+    anchorWrapper.appendChild(arrowIcon);
 
-    // Append priceDiv, ratingDiv, and anchorTag to the flex container
+    // Append priceDiv, ratingDiv, and anchorWrapper to the flex container
     infoContainer.appendChild(priceDiv);
     infoContainer.appendChild(ratingDiv);
-    infoContainer.appendChild(anchorTag);
+    infoContainer.appendChild(anchorWrapper);
     
     // Append the infoContainer to the mainDiv
     mainDiv.appendChild(infoContainer);
 
     // Append the main div inside the parent element
     parentElement.appendChild(mainDiv);
+
+    // Add click event handler for view button (anchorTag)
+    anchorTag.addEventListener('click', (event) => {
+        event.preventDefault(); // Prevent immediate navigation
+        
+        const link = anchorTag.href;
+        if (link === '#' || !link) return; // Don't animate if no valid link
+        
+        // Show and animate the arrow
+        arrowIcon.style.opacity = '1';
+        arrowIcon.style.left = '0px'; // Move to starting position
+        
+        // Start the animation after a tiny delay
+        setTimeout(() => {
+            arrowIcon.style.left = '120px'; // Move to the right end
+        }, 50);
+        
+        // Get current site's information to store
+        let currentSite, currentPrice, currentRating, currentUrl;
+        
+        if (isAmazon()) {
+            currentSite = 'amazon';
+            // Get Amazon data
+            const priceElement = document.querySelector('.a-price .a-offscreen');
+            currentPrice = priceElement ? priceElement.innerText : 'N/A';
+            
+            const ratingElement = document.querySelector('#acrPopover');
+            currentRating = ratingElement ? ratingElement.getAttribute('title').split(' ')[0] : 'N/A';
+            
+            currentUrl = window.location.href;
+        } else if (isFlipkart()) {
+            currentSite = 'flipkart';
+            // Get Flipkart data
+            var priceElement = document.querySelector('.Nx9bqj.CxhGGd.yKS4la');
+            currentPrice = priceElement ? priceElement.innerText : 'N/A';
+            
+            var ratingElement = document.querySelector('.XQDdHH');
+            currentRating = ratingElement ? ratingElement.innerText : 'N/A';
+            
+            currentUrl = window.location.href;
+        }
+        
+        // Store the data before navigating
+        chrome.runtime.sendMessage({
+            action: "storeComparisonData",
+            source: currentSite,
+            price: currentPrice,
+            rating: currentRating,
+            link: currentUrl
+        }, (response) => {
+            console.log("Data storage response:", response);
+            // Redirect after animation completes
+            setTimeout(() => {
+                window.open(link, '_blank');
+            }, 900);
+        });
+    });
 
     // Add click event listener to the comparison button
     compareButton.addEventListener("click", () => {
