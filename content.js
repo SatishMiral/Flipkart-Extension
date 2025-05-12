@@ -389,21 +389,51 @@ function addCompareElement(parentElement) {
             infoContainer.style.opacity = '1'; // Trigger the fade-in
         }, 50); 
     
-        // Set loading effect for ratingDiv
-        ratingDiv.innerHTML = `<div style="border: 4px solid #f3f3f3; border-top: 4px solid #3498db; 
-                                border-radius: 50%; width: 20px; height: 20px;
-                                animation: spin 1s linear infinite; display: inline-block; margin-left: 5px;">
-                            </div>`;
-        
-        anchorTag.innerHTML = '';  // Disable the link during loading
+        // Determine platform from URL
+        const currentURL = window.location.href;
+        let platformText = "Searching...";
+        if (currentURL.includes("flipkart.com")) {
+            platformText = "Searching on Amazon";
+        } else if (currentURL.includes("amazon.")) {
+            platformText = "Searching on Flipkart";
+        }
 
-        // Add the spinning animation keyframes directly in JavaScript
+        // Ensure ratingDiv uses flex to center content
+        ratingDiv.style.display = 'flex';
+        ratingDiv.style.justifyContent = 'center';
+        ratingDiv.style.alignItems = 'center';
+
+        // Set animated loading text with larger font size and single line
+        ratingDiv.innerHTML = `
+            <span style="font-size: 17px; color: #555; white-space: nowrap; display: inline-flex; align-items: center;">
+                ${platformText}<span class="dot-loader"></span>
+            </span>
+        `;
+
+        // Disable the link during loading
+        anchorTag.innerHTML = '';
+
+        // Inject animated dots using CSS keyframes
         const style = document.createElement('style');
         style.type = 'text/css';
-        style.innerHTML =`@keyframes spin {
-                            0% { transform: rotate(0deg); }
-                            100% { transform: rotate(360deg); }
-                          }`;
+        style.innerHTML = `
+        @keyframes dots {
+            0% { content: ""; }
+            25% { content: "."; }
+            50% { content: ".."; }
+            75% { content: "..."; }
+            100% { content: ""; }
+        }
+
+        .dot-loader::after {
+            display: inline-block;
+            white-space: pre;
+            animation: dots 1.2s steps(4, end) infinite;
+            content: "";
+        }
+        `;
+        document.head.appendChild(style);
+
         
         document.head.appendChild(style);
     
