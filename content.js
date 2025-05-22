@@ -10,25 +10,30 @@ function isFlipkart() {
 
 // Initial call to add the element when the page first loads
 window.addEventListener('load', () => {
-    if (isFlipkart()) {
-        // Find all parent elements with the class 'C7fEHH' (Flipkart)
-        let parentElements = document.querySelectorAll('.C7fEHH');
-        parentElements.forEach(parentElement => {
-            addCompareElement(parentElement);
-        });
-
-        // Check for stored comparison data from Amazon 
-        checkForStoredComparisonData();
-    } else if (isAmazon()) {
-        // Find the price display div on Amazon
-        let parentElement = document.querySelector('#corePriceDisplay_desktop_feature_div');
-        if (parentElement) {
-            addCompareElement(parentElement);
+    // First check if we have comparison data
+    chrome.storage.local.get('comparisonData', (data) => {
+        if (data.comparisonData) {
+            // If we have comparison data, just display it
+            displayComparisonData(data.comparisonData);
+            // Clear the data after displaying it
+            chrome.storage.local.remove('comparisonData');
+        } else {
+            // Only add compare elements if we don't have comparison data
+            if (isFlipkart()) {
+                // Find all parent elements with the class 'C7fEHH' (Flipkart)
+                let parentElements = document.querySelectorAll('.C7fEHH');
+                parentElements.forEach(parentElement => {
+                    addCompareElement(parentElement);
+                });
+            } else if (isAmazon()) {
+                // Find the price display div on Amazon
+                let parentElement = document.querySelector('#corePriceDisplay_desktop_feature_div');
+                if (parentElement) {
+                    addCompareElement(parentElement);
+                }
+            }
         }
-        
-        // Check for stored comparison data from Flipkart
-        checkForStoredComparisonData();
-    }
+    });
 });
 
 // Function to check for stored comparison data
@@ -37,12 +42,6 @@ function checkForStoredComparisonData() {
         if (data.comparisonData) {
             console.log("Found comparison data:", data.comparisonData);
             displayComparisonData(data.comparisonData);
-            
-            // Hide all compare buttons when comparison data is displayed
-            const compareButtons = document.querySelectorAll('.product-info-container');
-            compareButtons.forEach(button => {
-                button.style.display = 'none';
-            });
             
             // Clear the data after displaying it
             chrome.storage.local.remove('comparisonData');
