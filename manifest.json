@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Flipkart Extension",
+  "name": "Smart Compare",
   "version": "1.0",
-  "description": "An extension that works on Flipkart.",
+  "description": "An extension that works on Flipkart & Amazon.",
   "permissions": [
     "activeTab",
     "scripting",

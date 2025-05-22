@@ -38,6 +38,12 @@ function checkForStoredComparisonData() {
             console.log("Found comparison data:", data.comparisonData);
             displayComparisonData(data.comparisonData);
             
+            // Hide all compare buttons when comparison data is displayed
+            const compareButtons = document.querySelectorAll('.product-info-container');
+            compareButtons.forEach(button => {
+                button.style.display = 'none';
+            });
+            
             // Clear the data after displaying it
             chrome.storage.local.remove('comparisonData');
         }
