@@ -16,6 +16,9 @@ window.addEventListener('load', () => {
         parentElements.forEach(parentElement => {
             addCompareElement(parentElement);
         });
+
+        // Check for stored comparison data from Amazon 
+        checkForStoredComparisonData();
     } else if (isAmazon()) {
         // Find the price display div on Amazon
         let parentElement = document.querySelector('#corePriceDisplay_desktop_feature_div');
@@ -69,6 +72,9 @@ function displayComparisonData(data) {
     comparisonBox.style.padding = '15px';
     comparisonBox.style.margin = '15px 0';
     comparisonBox.style.boxShadow = '0 2px 5px rgba(0,0,0,0.1)';
+    if(isOnFlipkart){
+        comparisonBox.style.width = '50%';
+    }
     
     // Add logo based on source
     const logoDiv = document.createElement('div');
@@ -118,7 +124,7 @@ function displayComparisonData(data) {
     if (!isNaN(comparisonPriceNum) && !isNaN(currentSitePriceNum)) {
         priceDiff = currentSitePriceNum - comparisonPriceNum;
         
-        const otherSiteName = data.source === 'flipkart' ? 'Flipkart' : 'Amazon';
+        const otherSiteName = data.source === isOnFlipkart ? 'Flipkart' : 'Amazon';
         const currentSiteName = isOnAmazon ? 'Amazon' : 'Flipkart';
         
         if (priceDiff > 0) {
