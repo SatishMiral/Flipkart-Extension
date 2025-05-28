@@ -10,9 +10,11 @@ function isFlipkart() {
 
 // Initial call to add the element when the page first loads
 window.addEventListener('load', () => {
+    console.log("Page loaded");
     // First check if we have comparison data
     chrome.storage.local.get('comparisonData', (data) => {
         if (data.comparisonData) {
+            console.log("Found comparison data", data.comparisonData);
             // If we have comparison data, just display it
             displayComparisonData(data.comparisonData);
             // Clear the data after displaying it
@@ -38,6 +40,7 @@ window.addEventListener('load', () => {
 
 // Function to check for stored comparison data
 function checkForStoredComparisonData() {
+    console.log("Checking for stored comparison data");
     chrome.storage.local.get('comparisonData', (data) => {
         if (data.comparisonData) {
             console.log("Found comparison data:", data.comparisonData);
@@ -115,13 +118,13 @@ function displayComparisonData(data) {
         currentSitePrice = amazonPriceElement ? amazonPriceElement.innerText : 'N/A';
         currentSitePriceNum = parseInt(currentSitePrice.replace(/[^\d]/g, ''));
     } else if (isOnFlipkart) {
-        const flipkartPriceElement = document.querySelector('.Nx9bqj.CxhGGd.yKS4la');
+        const flipkartPriceElement = document.querySelector('.Nx9bqj.CxhGGd');
         currentSitePrice = flipkartPriceElement ? flipkartPriceElement.innerText : 'N/A';
         currentSitePriceNum = parseInt(currentSitePrice.replace(/[^\d]/g, ''));
     }
     
     // Convert comparison price to number
-    const comparisonPriceNum = parseInt(data.price.replace(/[^\d]/g, ''));
+    const comparisonPriceNum = parseInt(data.price.replace(/[^\d.]/g, '').split('.')[0]);
     
     let priceDiff = 0;
     let savingsText = '';
@@ -129,7 +132,7 @@ function displayComparisonData(data) {
     if (!isNaN(comparisonPriceNum) && !isNaN(currentSitePriceNum)) {
         priceDiff = currentSitePriceNum - comparisonPriceNum;
         
-        const otherSiteName = data.source === isOnFlipkart ? 'Flipkart' : 'Amazon';
+        const otherSiteName = isOnAmazon ? 'Flipkart' : 'Amazon';
         const currentSiteName = isOnAmazon ? 'Amazon' : 'Flipkart';
         
         if (priceDiff > 0) {
@@ -365,7 +368,7 @@ function addCompareElement(parentElement) {
         } else if (isFlipkart()) {
             currentSite = 'flipkart';
             // Get Flipkart data
-            var priceElement = document.querySelector('.Nx9bqj.CxhGGd.yKS4la');
+            var priceElement = document.querySelector('.Nx9bqj.CxhGGd');
             currentPrice = priceElement ? priceElement.innerText : 'N/A';
             
             var ratingElement = document.querySelector('.XQDdHH');
