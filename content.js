@@ -158,13 +158,18 @@ function displayComparisonData(data) {
             </div>
         </div>
         ${savingsText}
-        <div style="margin-top: 10px;">
+        <div style="margin-top: 10px; margin-bottom: 1px; display: flex; justify-content: space-between; align-items: center;">
             <a href="${data.link}" target="_blank" style="color: ${data.source === 'flipkart' ? '#2874f0' : '#ff9900'}; 
                text-decoration: none; display: inline-block; padding: 8px 15px; 
                background-color: #fff; border: 1px solid ${data.source === 'flipkart' ? '#2874f0' : '#ff9900'}; 
                border-radius: 4px;">
                 View on ${sourceName}
             </a>
+            <div style="font-size: 14px; color: #666;">
+                Not the right product?
+                <button onclick="window.open('https://www.amazon.in/s?k=${encodeURIComponent(data.productName)}', '_blank')" 
+                   style="background: none; border: none; color: #666; font-size: 14px; text-decoration: underline; cursor: pointer; padding: 0;">click here</button>
+            </div>
         </div>
     `;
     
